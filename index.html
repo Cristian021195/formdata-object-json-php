@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form JS - JSON - OBJECT</title>
+</head>
+<body>
+
+
+    <header>header</header>
+    <main>
+        <section>
+            <article>
+                <form id="formulario">
+                    <label for="nombre">Nombre: 
+                        <input type="text" name="nombre" placeholder="nombre" value="Cristian">
+                    </label>
+                    <label for="apellido">Apellido: 
+                        <input type="text" name="apellido" placeholder="apellido" value="Gramajo">
+                    </label>
+                    <label for="edad">Edad: 
+                        <input type="number" name="edad" placeholder="edad" min="0" max="80" value="40">
+                    </label>
+                    <label for="descripcion">Descripcion:
+                        <textarea name="descripcion" id="descripcion" cols="30" rows="10">Contenido por defecto</textarea>
+                    </label>
+                    <label>Masculino:
+                        <input type="radio" name="sexo" value="masculino">
+                    </label>
+                    <label>Femenino:
+                        <input type="radio" name="sexo" value="femenino" checked>
+                    </label>
+                    <label>Volumen: 
+                        <input type="range" name="volumen" step="1" max="10" min="0">
+                    </label>
+                    <label>Preferencias: </label>
+                    <label>
+                        Accion 
+                        <input type="checkbox" name="preferencias[]" value="accion">
+                    </label>
+                    <label>
+                        Comedia 
+                        <input type="checkbox" name="preferencias[]" value="comedia">
+                    </label>
+                    <label>
+                        Drama 
+                        <input type="checkbox" name="preferencias[]" value="drama">
+                    </label>
+                    <label>
+                        Historia  
+                        <input type="checkbox" name="preferencias[]" value="historia">
+                    </label>                        
+                        
+                    <input type="submit" value="ENVIAR">
+                </form>
+            </article>
+        </section>
+    </main>
+    <footer>
+        footer
+    </footer>
+
+    <script>
+        const $formulario = document.getElementById('formulario');
+        $formulario.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            const object = {};
+            let formData = new FormData(e.target);
+
+            //console.log(Object.fromEntries(formData))
+            /*formData.forEach((value, key)=>{
+                object[key] = value;
+            });*/
+            formData.forEach((value, key) => {                
+                if(!Reflect.has(object, key)){ // Reflect.has in favor of: object.hasOwnProperty(key)
+                    object[key] = value;
+                    return;
+                }
+                if(!Array.isArray(object[key])){
+                    object[key] = [object[key]];    
+                }
+                object[key].push(value);
+            });
+
+            fetch('./send.php', {method:'POST', body: formData})
+            .then(res=>res.text())
+            .then(res=>console.log)
+            .catch((err)=>console.log(err.message))
+
+            fetch('./send-json.php', {
+                method:'POST',
+                body: JSON.stringify(object),
+                headers:{
+                    "Content-Type":"application/json"
+                }
+            })
+            .then(res=>res.text())
+            .then(res=>console.log)
+            .catch((err)=>console.log(err.message))
+        })
+    </script>
+</body>
+</html>
